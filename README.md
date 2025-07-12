@@ -7,7 +7,6 @@ Hello everyone who is taking a look at this repo and welcome to my work on the c
 - Automatic formatting and environment reproducibility via pre-commit hooks
 - GitHub actions that prevent unformatted code from being pushed to the main branch (and provide helpful suggestions on rejected pull requests!)
 - Documentation [roxygen](https://roxygen2.r-lib.org) style
-- Quarto-powered reports for pretty formatting of results and analysis _(if I have time to actually create these)_
 
 **Style:**
 The style guidelines were obtained from the [Google Style Guide](https://google.github.io/styleguide/Rguide.html) and the code itself strives to make use of the [tidyverse](https://www.tidyverse.org) and its philosophy for doing data analysis in R.
@@ -17,6 +16,7 @@ The style guidelines were obtained from the [Google Style Guide](https://google.
 (Also I know emojis are an AI red flag, but I genuinely enjoy them in GitHub READMEs and this file, like all other code in this repository, was created without the use of any LLM tool)
 
 **Future Work:**
+- I slightly ran 
 - If I had more time, I would love to learn about the R package ecosystem and develop this into a full-fledged package (using Hadley Wickham's incredible [online resource](https://r-pkgs.org) as a guide). Besides being a great learning opportunity, it would allow roxygen to actually create in-editor documentation for the functions, making it easier to continue working on this and for others to access it.
 - Additionally, I'd love to incorporate a GitHub Action workflow for automated linting via a tool like [lintr](https://lintr.r-lib.org).
 - Although full integration tests don't really fit the scope of this project, integration/unit tests are generally something I like to setup in an automated fashion just to help avoid hidden bugs.
@@ -56,10 +56,11 @@ Once you've cloned the repository and installed all necessary dependencies, you'
 ```
 
 ### Reproducing Analysis
-_Fill this out when I actually write the analysis code_
+All the analysis code lives in **main.R** If you would like to reproduce the code, make sure you're setup and run the following command to reproduce all of the figures and CSV output.
+```bash
+Rscript main.R
+```
 
-### Reproducing Figures
-_Fill this out when I actually create the figures_
 
 ## 🤝 Contributing
 If you'd like to contribute, please fork the repo and open a pull request. There are a few things to note below that help enforce a clean, consistent, and _tidy_ codebase.
