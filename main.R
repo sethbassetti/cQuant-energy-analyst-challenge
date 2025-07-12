@@ -69,3 +69,8 @@ ggsave(
   hourly_volatility_plot,
   width = 12
 )
+
+# Bonus Task: Hourly Shape Profile Computation ---------------------------
+
+normalized_hourly_shape_df <- compute_hourly_shape_profiles(clean_df)
+write_hourly_shape_profiles(normalized_hourly_shape_df)

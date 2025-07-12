@@ -57,6 +57,8 @@ plot_hourly_volatility <- function(df) {
       color = SettlementPoint
     )) +
     geom_point(size = 3) +
+
+    # Filter out the HB_PAN settlement point, otherwise geom_bump throws a warning (since it appears in 2019)
     ggbump::geom_bump(
       data = df |>
         dplyr::filter(!SettlementPoint == "HB_PAN"),

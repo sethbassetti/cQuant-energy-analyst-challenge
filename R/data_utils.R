@@ -174,3 +174,64 @@ format_and_write_cQuant_files <- function(df) {
   # Using walk because we only want the side effects
   purrr::walk(split_settlements, write_cQuant_file)
 }
+
+compute_hourly_shape_profiles <- function(df) {
+  normalized_hourly_shape_df <- df |>
+
+    # Add an hour and day of week to dataframe
+    dplyr::mutate(
+      DayOfWeek = lubridate::wday(Date),
+      Hour = lubridate::hour(Date)
+    ) |>
+
+    # Group data up and calculate the average price among these groups
+    dplyr::group_by(SettlementPoint, Month, DayOfWeek, Hour) |>
+    dplyr::summarize(AverageHourlyPrice = mean(Price), .groups = "drop_last") |>
+
+    # Normalize the prices by dividing by the sum of each hourly price (within its group)
+    dplyr::mutate(
+      Price = AverageHourlyPrice / sum(AverageHourlyPrice)
+    ) |>
+
+    # Select the columns we care about
+    dplyr::select(SettlementPoint, Month, DayOfWeek, Hour, Price) |>
+
+    # Add an hour to account for cQuant hourly variables starting at 1
+    dplyr::mutate(Hour = Hour + 1) |>
+
+    # Actually take each hour and create a separate column for that hour
+    tidyr::pivot_wider(
+      names_from = Hour,
+      values_from = Price,
+      names_prefix = "X",
+      id_cols = c(Month, DayOfWeek, SettlementPoint)
+    )
+  return(normalized_hourly_shape_df)
+}
+
+
+hourly_shape_write_fn <- function(df) {
+  # First, extract the settlement point name
+  settlementPoint <- as.character(unique(df["SettlementPoint"]))
+
+  # Then, create the filename
+  filename = paste(
+    c(
+      "output/hourlyShapeProfiles/profile_",
+      settlementPoint,
+      ".csv"
+    ),
+    collapse = ""
+  )
+
+  # Finally, write the CSV
+  readr::write_csv(df, filename)
+}
+write_hourly_shape_profiles <- function(df) {
+  settlement_splits <- df |>
+    # Group into settlements and split into a list of each settlement point
+    dplyr::group_by(SettlementPoint) |>
+    dplyr::group_split()
+
+  purrr::walk(settlement_splits, hourly_shape_write_fn)
+}
