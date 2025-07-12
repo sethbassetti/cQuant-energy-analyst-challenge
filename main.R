@@ -7,6 +7,7 @@ library(janitor)
 library(stringr)
 library(readr)
 library(conflicted)
+library(tidyr)
 
 
 # Task 1: Read Data ------------------------------------------------------
@@ -36,3 +37,12 @@ hourly_volatility_df <- compute_hourly_volatility(clean_df)
 readr::write_csv(hourly_volatility_df, "output/HourlyVolatilityByYear.csv")
 
 # Task 6: Determine Highest Volatility -----------------------------------
+highest_volatility_per_year <- compute_highest_volatility_per_year(
+  hourly_volatility_df
+)
+readr::write_csv(highest_volatility_per_year, "output/MaxVolatilityByYear.csv")
+
+
+# Task 7: Format Data for cQuant Consumption -----------------------------
+
+format_and_write_cQuant_files(clean_df)

@@ -2,6 +2,7 @@ library(readr)
 library(dplyr)
 library(janitor)
 library(lubridate)
+library(purrr)
 
 #' Reads all files in a given directory
 #'
@@ -13,7 +14,7 @@ library(lubridate)
 #' read_files("data")
 read_files <- function(directory) {
   all_files <- list.files(directory, full.names = TRUE)
-  df <- readr::read_csv(all_files)
+  df <- readr::read_csv(all_files, show_col_types = FALSE)
 
   return(df)
 }
@@ -87,4 +88,89 @@ compute_hourly_volatility <- function(df) {
     dplyr::relocate(SettlementPoint, Year, HourlyVolatility)
 
   return(hourly_volatility_df)
+}
+
+#' Computes which settlement hub had the highest volatility per year
+#'
+#' Uses the slice_max function to compute the "top-ranking" settlement hub per year
+#' by hourly volatility
+#'
+#' @param volatility_df The dataframe of hourly volatility that should be computed by the
+#' "compute_hourly_volatility" function
+#' @returns A tibble of the shape SettlementPoint x Year x HourlyVolatility
+compute_highest_volatility_per_year <- function(volatility_df) {
+  return(hourly_volatility_df |> dplyr::slice_max(HourlyVolatility, by = Year))
+}
+
+#' Splits a dataframe up into a list of settlements
+#'
+#' First, this function takes each distinct hour and transforms it into a unique column
+#' Then, the function creates a separate dataframe for each settlement point
+#' and returns a list of those dataframes
+#'
+#' @param df The dataframe to split
+#' @returns A list of tibbles, one for each settlement point, in the shape
+#' SettlementPoint x Date x X1..X2..X3....X24 (one for each hour)
+split_df_into_settlements <- function(df) {
+  settlement_split <- df |>
+    # Add an hour to account for cQuant hourly variables starting at 1
+    dplyr::mutate(Hour = lubridate::hour(Date) + 1) |>
+
+    # Actually take each hour and create a separate column for that hour
+    tidyr::pivot_wider(
+      names_from = Hour,
+      values_from = Price,
+      names_prefix = "X",
+      id_cols = c(Month, Year, Day, SettlementPoint)
+    ) |>
+
+    # Retrieve the date from the year/month/day and drop all unnecessary columns
+    dplyr::mutate(Date = lubridate::make_date(Year, Month, Day)) |>
+    dplyr::select(SettlementPoint, Date, X1:X24) |>
+
+    # Can never be too careful
+    dplyr::arrange(SettlementPoint, Date) |>
+
+    # Group into settlements and split into a list of each settlement point
+    dplyr::group_by(SettlementPoint) |>
+    dplyr::group_split()
+
+  return(settlement_split)
+}
+
+#' Takes a dataframe for a single settlement and writes it to file
+#'
+#' Assuming this dataframe has been processed to only focus on a single settlement point
+#' this function will determine its filename and write it to disk
+#'
+#' @param df A tibble dataframe that has data for a single settlement, formatted in cQuant fashion
+write_cQuant_file <- function(df) {
+  # First, extract the settlement point name
+  settlementPoint <- as.character(unique(df["SettlementPoint"]))
+
+  # Then, create the filename
+  filename = paste(
+    c(
+      "output/formattedSpotHistory/spot_",
+      settlementPoint,
+      ".csv"
+    ),
+    collapse = ""
+  )
+
+  # Finally, write the CSV
+  readr::write_csv(df, filename)
+}
+
+#' Formats the files according to cQuant specifications, and writes to disk
+#'
+#' Uses split_df_into_settlements to obtain a list of formatted dataframes, then
+#' uses purrr (functional programming!) to write each dataframe to disk
+#'
+#' @param df A cleaned tibble dataframe containing hourly price data for all settlement points
+format_and_write_cQuant_files <- function(df) {
+  split_settlements <- split_df_into_settlements(df)
+
+  # Using walk because we only want the side effects
+  purrr::walk(split_settlements, write_cQuant_file)
 }
