@@ -5,7 +5,7 @@ Hello everyone who is taking a look at this repo and welcome to my work on the c
 
 **Features:**
 - Automatic formatting and environment reproducibility via pre-commit hooks
-- GitHub actions that prevent unformatted code from being pushed to the main branch (and provide helpful suggestions on rejected pull requests!)
+- GitHub actions to automatically check formatting and provide suggestions for fixes.
 - Documentation [roxygen](https://roxygen2.r-lib.org) style
 
 **Style:**
@@ -16,8 +16,8 @@ The style guidelines were obtained from the [Google Style Guide](https://google.
 (Also I know emojis are an AI red flag, but I genuinely enjoy them in GitHub READMEs and this file, like all other code in this repository, was created without the use of any LLM tool)
 
 **Future Work:**
-- I slightly ran 
-- If I had more time, I would love to learn about the R package ecosystem and develop this into a full-fledged package (using Hadley Wickham's incredible [online resource](https://r-pkgs.org) as a guide). Besides being a great learning opportunity, it would allow roxygen to actually create in-editor documentation for the functions, making it easier to continue working on this and for others to access it.
+- If I had more time, I would like to clean up the functionality for the last bonus task. There are some repeated code snippets between functions that could benefit from further decomposition.
+- I would also love to learn about the R package ecosystem and develop this into a full-fledged package (using Hadley Wickham's incredible [online resource](https://r-pkgs.org) as a guide). Besides being a great learning opportunity, it would allow roxygen to actually create in-editor documentation for the functions, making it easier to continue working on this and for others to access it.
 - Additionally, I'd love to incorporate a GitHub Action workflow for automated linting via a tool like [lintr](https://lintr.r-lib.org).
 - Although full integration tests don't really fit the scope of this project, integration/unit tests are generally something I like to setup in an automated fashion just to help avoid hidden bugs.
 
