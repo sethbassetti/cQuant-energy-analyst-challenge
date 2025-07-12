@@ -17,3 +17,39 @@ read_files <- function(directory) {
 
   return(df)
 }
+
+
+#' Performs any necessary preprocessing on a dataframe
+#'
+#' @description
+#' This function takes in a dataframe and preprocesses it for further analysis.
+#' The names are cleaned for a consistent column naming format and date has been replaced with year/month/day columns
+#'
+#' @param df The tibble dataframe to clean
+#' @returns A preprocessed tibble dataframe
+clean_df <- function(df) {
+  clean_df <- df |>
+    janitor::clean_names("upper_camel") |>
+    dplyr::mutate(
+      Month = lubridate::month(Date),
+      Year = lubridate::year(Date),
+      Day = lubridate::day(Date)
+    ) |>
+    # We don't need the date column anymore
+    select(!Date)
+
+  return(clean_df)
+}
+
+#' Returns average monthly price for settlement points
+#'
+#' For each hub and load zone, computes the mean price for each month in the dataset
+compute_average_price <- function(df) {
+  average_df <- df |>
+    dplyr::group_by(Year, Month, SettlementPoint) |>
+    dplyr::summarize(AveragePrice = mean(Price), .groups = "drop") |>
+    # Reorder the columns to work with CSV format
+    dplyr::relocate(c(SettlementPoint, Year, Month, AveragePrice))
+
+  return(average_df)
+}
