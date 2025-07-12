@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Make sure to format all files before committing
+echo "Running air formatter before commit..."
+air format .
+
+# Look for the changes made by the formatter (only in tracked files, so we don't accidentally stage a random file)
+CHANGED_FILES=$(git diff --name-only)
+
+# If files were changed, stage those files again before committing
+if [ -n "$CHANGED_FILES" ]; then
+	echo "Restaging files that were formatted..."
+	echo "$CHANGED_FILES" | xargs git add
+else
+	echo "No formatting changes necessary"
+fi
+
+# Snapshot all current packages being used into the renv.lock file and stage the renv.lock
+echo "\nUpdating packages used in renv.lock"
+Rscript -e 'renv::snapshot()'
+git add renv.lock
