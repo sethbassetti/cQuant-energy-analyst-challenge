@@ -175,6 +175,14 @@ format_and_write_cQuant_files <- function(df) {
   purrr::walk(split_settlements, write_cQuant_file)
 }
 
+#' Computes an hourly shape profile from power price data in the dataframe
+#'
+#' Specifically, for each settlement point, month, and day of week, this function
+#' averages the price data for each of the 24 hours across those groups
+#' Then, these are normalized so hours 1-24 for a specific group add up to 1
+#'
+#' @param df A cleaned, preprocessed dataframe with hourly price data
+#' @returns A dataframe with hourly shape profiles in cQuant formatting
 compute_hourly_shape_profiles <- function(df) {
   normalized_hourly_shape_df <- df |>
 
@@ -210,6 +218,12 @@ compute_hourly_shape_profiles <- function(df) {
 }
 
 
+#' Helper function for writing the separate CSV files
+#'
+#' This function takes in a dataframe that holds hourly shape profiles
+#' for a single settlement. Then, it determines the correct CSV name and writes it to disk
+#'
+#' @param df Hourly shape profile tibble for a single settlement point
 hourly_shape_write_fn <- function(df) {
   # First, extract the settlement point name
   settlementPoint <- as.character(unique(df["SettlementPoint"]))
@@ -227,6 +241,13 @@ hourly_shape_write_fn <- function(df) {
   # Finally, write the CSV
   readr::write_csv(df, filename)
 }
+
+
+#' This function writes the hourly shape profiles to disk
+#'
+#' Similar to the spot histories, this function creates a separate dataframe for each settlement hub
+#' and load zone and writes the hourly price profiles for each group to a separate CSV
+#' @param df The hourly price profile dataframe
 write_hourly_shape_profiles <- function(df) {
   settlement_splits <- df |>
     # Group into settlements and split into a list of each settlement point
