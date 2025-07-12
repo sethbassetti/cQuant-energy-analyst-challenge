@@ -2,6 +2,7 @@ library(stringr)
 library(ggplot2)
 library(lubridate)
 library(dplyr)
+library(ggbump)
 
 #' Plots the average monthly prices as a line plot for different settlement points
 #'
@@ -42,4 +43,31 @@ plot_avg_monthly <- function(df, settlement_prefix) {
     scale_y_continuous(n.breaks = 5)
 
   return(mean_plot)
+}
+
+#' Plots the compared average volatility between settlement hubs
+#'
+#' Uses a bump plot to compare hourly volatility per year between different settlement hubs
+#' @param df The dataframe with hourly volatility data
+plot_hourly_volatility <- function(df) {
+  volatility_plot <- df |>
+    ggplot(aes(
+      x = Year,
+      y = HourlyVolatility,
+      color = SettlementPoint
+    )) +
+    geom_point(size = 3) +
+    ggbump::geom_bump(
+      data = df |>
+        dplyr::filter(!SettlementPoint == "HB_PAN"),
+      linewidth = 1.5
+    ) +
+    labs(
+      title = "Compared Hourly Volatility between Settlement Hubs from 2016-2019",
+      x = "Year",
+      y = "Hourly Volatility",
+      color = "Settlement Hub"
+    )
+
+  return(volatility_plot)
 }

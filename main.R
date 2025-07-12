@@ -3,7 +3,6 @@
 source("R/data_utils.R")
 source("R/plot_utils.R")
 
-
 library(dplyr)
 library(janitor)
 library(stringr)
@@ -12,6 +11,7 @@ library(conflicted)
 library(tidyr)
 library(ggplot2)
 library(lubridate)
+library(ggbump)
 
 
 # Task 1: Read Data ------------------------------------------------------
@@ -59,3 +59,13 @@ lz_plot <- plot_avg_monthly(average_price_df, "LZ")
 
 ggsave("output/SettlementHubAveragePriceByMonth.png", hub_plot, width = 12)
 ggsave("output/LoadZoneAveragePriceByMonth.png", lz_plot, width = 12)
+
+
+# Bonus Task: Volatility Plots -------------------------------------------
+
+hourly_volatility_plot <- plot_hourly_volatility(hourly_volatility_df)
+ggsave(
+  "output/HourlyVolatilityComparisonByYear.png",
+  hourly_volatility_plot,
+  width = 12
+)
