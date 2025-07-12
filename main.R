@@ -1,6 +1,8 @@
 # Imports ----------------------------------------------------------------
 
 source("R/data_utils.R")
+source("R/plot_utils.R")
+
 
 library(dplyr)
 library(janitor)
@@ -8,6 +10,8 @@ library(stringr)
 library(readr)
 library(conflicted)
 library(tidyr)
+library(ggplot2)
+library(lubridate)
 
 
 # Task 1: Read Data ------------------------------------------------------
@@ -46,3 +50,12 @@ readr::write_csv(highest_volatility_per_year, "output/MaxVolatilityByYear.csv")
 # Task 7: Format Data for cQuant Consumption -----------------------------
 
 format_and_write_cQuant_files(clean_df)
+
+
+# Bonus Task: Mean Plots -------------------------------------------------
+
+hub_plot <- plot_avg_monthly(average_price_df, "HB")
+lz_plot <- plot_avg_monthly(average_price_df, "LZ")
+
+ggsave("output/SettlementHubAveragePriceByMonth.png", hub_plot, width = 12)
+ggsave("output/LoadZoneAveragePriceByMonth.png", lz_plot, width = 12)
